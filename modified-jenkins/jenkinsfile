@@ -4,20 +4,20 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Clones the Git repository
-                git url: 'https://github.com/theaoge/git-repo', branch: 'main'
+                checkout([$class: 'GitSCM', 
+                          branches: [[name: 'main']], 
+                          userRemoteConfigs: [[url: 'https://github.com/theaoge/git-repo']]])
             }
         }
-
         stage('Deploy') {
             steps {
                 script {
-                    // Apply the YAML deployment file using kubectl
-                    sh 'kubectl apply -f path/to/jenkins-deployment.yaml'
+                    sh '/opt/homebrew/bin/kubectl apply -f /Users/starshu/modified-jenkins/jenkins-deployment.yaml'
                 }
             }
         }
     }
 }
+
 
 
