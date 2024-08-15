@@ -1,23 +1,38 @@
 pipeline {
     agent any
-
+    
+    environment {
+        // Path to the Kubernetes configuration file relative to the repository root
+        KUBERNETES_CONFIG = 'modified-jenkins/jenkins-deployment.yaml'
+        
+        // Path to the kubectl binary on the Jenkins server
+        KUBECTL_PATH = '/opt/homebrew/bin/kubectl'
+    }
+    
     stages {
         stage('Checkout') {
             steps {
-                checkout([$class: 'GitSCM', 
-                          branches: [[name: 'main']], 
-                          userRemoteConfigs: [[url: 'https://github.com/theaoge/git-repo']]])
+                checkout scm
             }
         }
+        
         stage('Deploy') {
             steps {
                 script {
-                    sh '/opt/homebrew/bin/kubectl apply -f /Users/starshu/modified-jenkins/jenkins-deployment.yaml'
+                    // Ensure kubectl is executable
+                    sh 'chmod +x $KUBECTL_PATH'
+                    
+                    // Apply the Kubernetes configuration
+                    sh "${KUBECTL_PATH} apply -f ${KUBERNETES_CONFIG}"
                 }
             }
         }
     }
+    
+    post {
+        always {
+            echo 'Pipeline completed'
+        }
+    }
 }
-
-
 
