@@ -1,37 +1,36 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: jenkins
-  labels:
-    app: jenkins
+  name: jhooq-springboot
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
-      app: jenkins
+      app: jhooq-springboot
   template:
     metadata:
       labels:
-        app: jenkins
+        app: jhooq-springboot
     spec:
-      volumes:
-      - name: dind-storage
-        emptyDir: {}
       containers:
-      - name: jenkins
-        image: theaoge/docker-demo:docker-demo
-        ports:
-        - containerPort: 8080
-        - containerPort: 50000
-        env:
-        - name: DOCKER_HOST
-          value: tcp://localhost:2375
-      - name: dind
-        image: docker:18.05-dind
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - name: dind-storage
-          mountPath: /var/lib/docker
+        - name: springboot
+          image: theaoge/docker-demo:docker-demo
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jhooq-springboot
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: jhooq-springboot
       
 
